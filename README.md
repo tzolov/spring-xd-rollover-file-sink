@@ -22,7 +22,7 @@ xd:>module upload --file <path to>/rollover-file-1.0.0.BUILD-SNAPSHOT.jar --type
 
 Roll over files either when the file size became 10K (e.g. 10240 bytes) or rollover time period of 30 sec. elapses.
 ```
-xd>stream create --name rolloverFileTest --definition "time | rollover-file --filename=test_yyyy_mm_dd --dateFormat=yyyy_mm_dd_HHmmss --maxRolledFileSize=10240 --rolloverPeriod=30000" --deploy 
+xd>stream create --name rolloverFileTest --definition "time | rollover-file --filename=test_yyyy_mm_dd --dateFormat=yyyy_mm_dd_HHmmss --maxRolledFileSize=10240 --rolloverPeriod=30000 --archivePrefix=archive" --deploy 
 ```
 
 ### Options
@@ -85,10 +85,19 @@ xd>stream create --name rolloverFileTest --definition "time | rollover-file --fi
 			<td><sub>maxRolledFileSize</sub></td>
 			<td><sub>File size in bytes. When reached the file is rolled over. Set -1 to disable.</sub></td>
 			<td><sub>-1</sub></td>
-		</tr>				
+		</tr>
+		<tr>
+			<td><sub>archivePrefix</sub></td>
+			<td><sub>Name prefix assigned to roll over files. Skipped if the value is empty.</sub></td>
+			<td><sub>archive</sub></td>
+		</tr>
+		<tr>
+			<td><sub>compressArchive</sub></td>
+			<td><sub>If true the rolled files are compressed with gzip.</sub></td>
+			<td><sub>true</sub></td>
+		</tr>		
 	</tbody>	  	
 </table>
-
 
 ## Remove module
 

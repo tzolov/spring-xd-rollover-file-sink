@@ -20,6 +20,8 @@
 		<property name="flushRate" value="${flushRate:0}" />
 		<property name="rolloverPeriod" value="${rolloverPeriod:86400000}" />
 		<property name="maxRolledFileSize" value="${maxRolledFileSize:-1}" />
+		<property name="archivePrefix" value="${archivePrefix:archive}" />
+		<property name="compressArchive" value="${compressArchive:true}"></property>
 	</bean>
 
 	<int:service-activator input-channel="input"

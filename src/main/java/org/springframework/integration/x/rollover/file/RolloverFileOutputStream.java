@@ -19,9 +19,11 @@
 package org.springframework.integration.x.rollover.file;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,7 +34,9 @@ import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -45,6 +49,8 @@ import org.apache.commons.lang.StringUtils;
  * Old files are retained for a number of days before being deleted.
  */
 public class RolloverFileOutputStream extends FilterOutputStream {
+
+	private static final String GZIP_EXTENSION = ".gz";
 
 	private static Timer rolloverTimer;
 
@@ -63,6 +69,8 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	private boolean appendToFile;
 	private int fileRetainDays;
 	private long maxRolledFileSize;
+	private String archivePrefix = "archive";
+	private boolean compressArchive = true;
 
 	private AtomicLong writtenBytesCounter = new AtomicLong(0);
 
@@ -121,7 +129,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	 *             if unable to create output
 	 */
 	public RolloverFileOutputStream(String filename, boolean append, int retainDays, TimeZone zone) throws IOException {
-		this(filename, append, retainDays, zone, null, null, -1, DEFAULT_ROLLOVER_PERIOD, -1);
+		this(filename, append, retainDays, zone, null, null, -1, DEFAULT_ROLLOVER_PERIOD, -1, "", true);
 	}
 
 	/**
@@ -146,11 +154,13 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	 *             if unable to create output
 	 */
 	public RolloverFileOutputStream(String filename, boolean append, int retainDays, TimeZone zone, String dateFormat,
-			String backupFormat, long rolloverStartTimeMs, long rolloverPeriodMs, long maxRolledFileSize)
-			throws IOException {
+			String backupFormat, long rolloverStartTimeMs, long rolloverPeriodMs, long maxRolledFileSize,
+			String archivePrefix, boolean compressArchive) throws IOException {
 
 		super(null);
 
+		this.compressArchive = compressArchive;
+		this.archivePrefix = archivePrefix;
 		this.maxRolledFileSize = maxRolledFileSize;
 
 		if (dateFormat == null) {
@@ -173,9 +183,9 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 
 		filePath = filename.trim();
-		fileDir = new File(filename).getParentFile();
+		fileDir = new File(new File(filename).getAbsolutePath()).getParentFile();
 
-		if (!fileDir.isDirectory() || !fileDir.canWrite()) {
+		if (fileDir != null && (!fileDir.isDirectory() || !fileDir.canWrite())) {
 			throw new IOException("Cannot write into directory: " + fileDir);
 		}
 
@@ -245,6 +255,8 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		// Do we need to change the output stream?
 		if (force || !newFile.equals(primaryFile)) {
 
+			renameArchiveIfNeccessary();
+
 			primaryFile = newFile;
 
 			OutputStream oldOut = out;
@@ -313,6 +325,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	public void close() throws IOException {
 		synchronized (RolloverFileOutputStream.class) {
 			try {
+				renameArchiveIfNeccessary();
 				super.close();
 			} finally {
 				out = null;
@@ -335,20 +348,60 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 	}
 
+	private void renameArchiveIfNeccessary() {
+		if (primaryFile != null && !StringUtils.isEmpty(archivePrefix)) {
+
+			try {
+				System.out.println(primaryFile);
+				gzipFile(primaryFile);
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// primaryFile.renameTo(new File(primaryFile.getParentFile(), archivePrefix + "." + primaryFile.getName()));
+		}
+	}
+
 	private void checkFileSizeForRollover(long byteCount) {
 		if (maxRolledFileSize > 0) {
 			long fileSize = writtenBytesCounter.addAndGet(byteCount);
 			if (fileSize >= maxRolledFileSize) {
 				// Start file rolling over
 				synchronized (RolloverFileOutputStream.class) {
-					try {
-						setFile(true);
-						writtenBytesCounter.set(0);
-					} catch (IOException e) {
-						e.printStackTrace();
+					if (compressArchive) {
+						try {
+							setFile(true);
+							writtenBytesCounter.set(0);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
+		}
+	}
+
+	private void gzipFile(File file) throws IOException {
+		if (file.exists() == false) {
+			return;
+		}
+
+		try {
+			InputStream is = new FileInputStream(file);
+
+			File archiveFile = new File(file.getParentFile(), archivePrefix + "." + file.getName() + GZIP_EXTENSION);
+			OutputStream os = new GZIPOutputStream(new FileOutputStream(archiveFile));
+			IOUtils.copy(is, os);
+			is.close();
+			os.close();
+
+			if (!file.delete()) {
+				throw new IOException("Cant Delete File:" + file.getPath());
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			throw new IOException("Cant Gzip File" + file);
 		}
 	}
 }

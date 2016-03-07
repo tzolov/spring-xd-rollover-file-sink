@@ -12,7 +12,6 @@
  */
 package org.springframework.integration.x.rollover.file;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
@@ -47,6 +46,8 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 	private long rolloverPeriod = 1000L * 60 * 60 * 24;
 
 	private long maxRolledFileSize = -1;
+	private String archivePrefix = "";
+	private boolean compressArchive = true;
 
 	private AtomicLong messageCounter;
 	private volatile boolean running = false;
@@ -69,13 +70,13 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
 						retainDays, TimeZone.getTimeZone(timeZoneID), dateFormat, backupFormat, startRolloverTimeMs,
-						rolloverPeriod, maxRolledFileSize);
+						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive);
 
-				if (bufferSize > 0) {
-					outputStream = new BufferedOutputStream(rolloverFileOutputStream, bufferSize);
-				} else {
-					outputStream = rolloverFileOutputStream;
-				}
+				// if (bufferSize > 0) {
+				// outputStream = new BufferedOutputStream(rolloverFileOutputStream, bufferSize);
+				// } else {
+				outputStream = rolloverFileOutputStream;
+				// }
 
 				if (flushRate > 0) {
 					messageCounter = new AtomicLong(0);
@@ -217,4 +218,20 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 	public void setMaxRolledFileSize(long maxRolledFileSize) {
 		this.maxRolledFileSize = maxRolledFileSize;
 	}
+
+	public String getArchivePrefix() {
+		return archivePrefix;
+	}
+
+	public void setArchivePrefix(String archivePrefix) {
+		this.archivePrefix = archivePrefix;
+	}
+
+	public boolean isCompressArchive() {
+		return compressArchive;
+	}
+
+	public void setCompressArchive(boolean compressArchive) {
+		this.compressArchive = compressArchive;
+	}	
 }

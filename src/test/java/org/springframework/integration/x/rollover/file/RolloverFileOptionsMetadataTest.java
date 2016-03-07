@@ -44,7 +44,8 @@ public class RolloverFileOptionsMetadataTest {
 						moduleOptionNamed("retainDays"), moduleOptionNamed("timeZoneID"),
 						moduleOptionNamed("dateFormat"), moduleOptionNamed("backupFormat"),
 						moduleOptionNamed("bufferSize"), moduleOptionNamed("flushRate"),
-						moduleOptionNamed("rolloverPeriod"), moduleOptionNamed("maxRolledFileSize")));
+						moduleOptionNamed("rolloverPeriod"), moduleOptionNamed("maxRolledFileSize"),
+						moduleOptionNamed("archivePrefix"), moduleOptionNamed("compressArchive")));
 
 		for (ModuleOption moduleOption : metadata) {
 			System.out.println(moduleOption);
@@ -78,6 +79,12 @@ public class RolloverFileOptionsMetadataTest {
 			if (moduleOption.getName().equals("maxRolledFileSize")) {
 				assertEquals(-1L, moduleOption.getDefaultValue());
 			}
+			if (moduleOption.getName().equals("archivePrefix")) {
+				assertEquals("archive", moduleOption.getDefaultValue());
+			}
+			if (moduleOption.getName().equals("compressArchive")) {
+				assertEquals(true, moduleOption.getDefaultValue());
+			}			
 		}
 	}
 

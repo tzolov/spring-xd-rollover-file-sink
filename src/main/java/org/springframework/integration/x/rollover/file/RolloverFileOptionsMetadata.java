@@ -57,6 +57,11 @@ public class RolloverFileOptionsMetadata {
 	// over is deactivated.
 	private long maxRolledFileSize = -1;
 
+	// A file name prefix to assign on rollovered files
+	private String archivePrefix = "archive";
+
+	private boolean compressArchive = true;
+	
 	@NotBlank
 	public String getFilename() {
 		return filename;
@@ -153,4 +158,22 @@ public class RolloverFileOptionsMetadata {
 	public void setMaxRolledFileSize(long maxRolledFileSize) {
 		this.maxRolledFileSize = maxRolledFileSize;
 	}
+
+	public String getArchivePrefix() {
+		return archivePrefix;
+	}
+
+	@ModuleOption(value = "Name prefix assigned to roll over files. Skipped if the value is empty", defaultValue = "archive")
+	public void setArchivePrefix(String archivePrefix) {
+		this.archivePrefix = archivePrefix;
+	}
+
+	public boolean isCompressArchive() {
+		return compressArchive;
+	}
+
+	@ModuleOption(value = "If true the rolled files are compressed with gzip", defaultValue = "true")
+	public void setCompressArchive(boolean compressArchive) {
+		this.compressArchive = compressArchive;
+	}		
 }
