@@ -49,7 +49,7 @@ public class RolloverFileMessageHandlerTest {
 	}
 
 	@Test
-	public void test1() throws IOException, InterruptedException {
+	public void testRolloverFileSink() throws IOException, InterruptedException {
 		applicationContext.start();
 
 		input.send(new GenericMessage<String>("foo"));
