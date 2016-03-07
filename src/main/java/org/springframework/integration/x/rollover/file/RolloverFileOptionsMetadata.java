@@ -59,15 +59,6 @@ public class RolloverFileOptionsMetadata {
 	// How often to rollover files once started
 	private long rolloverPeriod = 1000L * 60 * 60 * 24;
 
-	@NotNull
-	public int getBufferSize() {
-		return bufferSize;
-	}
-
-	@ModuleOption(value = "Output stream buffer size. If set to -1 no buffering is used", defaultValue = "8192")
-	public void setBufferSize(int bufferSize) {
-		this.bufferSize = bufferSize;
-	}
 
 	@NotBlank
 	public String getFilename() {
@@ -129,6 +120,16 @@ public class RolloverFileOptionsMetadata {
 		this.timeZoneID = timeZoneID;
 	}
 
+	@NotNull
+	public int getBufferSize() {
+		return bufferSize;
+	}
+
+	@ModuleOption(value = "Output stream buffer size. If set to -1 no buffering is used", defaultValue = "8192")
+	public void setBufferSize(int bufferSize) {
+		this.bufferSize = bufferSize;
+	}
+
 	public long getFlushRate() {
 		return flushRate;
 	}
@@ -151,7 +152,7 @@ public class RolloverFileOptionsMetadata {
 		return rolloverPeriod;
 	}
 
-	@ModuleOption(value = "Peroid [ms] to repeat the file rollover", defaultValue = "86400000")
+	@ModuleOption(value = "Period [ms] to repeat the file rollover", defaultValue = "86400000")
 	public void setRolloverPeriod(long rolloverPeriod) {
 		this.rolloverPeriod = rolloverPeriod;
 	}
