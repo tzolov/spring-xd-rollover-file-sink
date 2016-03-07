@@ -73,7 +73,6 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		this(filename, true, ROLLOVER_FILE_RETAIN_DAYS);
 	}
 
-	/* ------------------------------------------------------------ */
 	/**
 	 * @param filename
 	 *            The filename must include the string "yyyy_mm_dd", which is
