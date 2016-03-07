@@ -56,21 +56,18 @@ public class RolloverFileMessageHandlerTest {
 		Thread.sleep(1100);
 		input.send(new GenericMessage<String>("bar"));
 
-		TreeSet<File> files = new TreeSet<File>(FileUtils.listFiles(tmpDir,
-				null, false));
+		TreeSet<File> files = new TreeSet<File>(FileUtils.listFiles(tmpDir, null, false));
 
 		Assert.assertEquals(2, files.size());
 
 		Iterator<File> iterator = files.iterator();
 
 		File firstFile = iterator.next();
-		Assert.assertTrue(firstFile.toString().startsWith(
-				"./test_results/test666_"));
+		Assert.assertTrue(firstFile.toString().startsWith("./test_results/test666_"));
 		Assert.assertEquals("foo", IOUtils.toString(firstFile.toURI()));
 
 		File secondFile = iterator.next();
-		Assert.assertTrue(secondFile.toString().startsWith(
-				"./test_results/test666_"));
+		Assert.assertTrue(secondFile.toString().startsWith("./test_results/test666_"));
 
 		Assert.assertEquals("bar", IOUtils.toString(secondFile.toURI()));
 	}

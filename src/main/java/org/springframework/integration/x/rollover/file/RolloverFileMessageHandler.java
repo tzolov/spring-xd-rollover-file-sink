@@ -30,11 +30,9 @@ import org.springframework.messaging.MessagingException;
 /**
  * @author Christian Tzolov (christian.tzolov@gmail.com)
  */
-public class RolloverFileMessageHandler extends AbstractMessageHandler
-		implements Lifecycle {
+public class RolloverFileMessageHandler extends AbstractMessageHandler implements Lifecycle {
 
-	private Logger logger = LoggerFactory
-			.getLogger(RolloverFileMessageHandler.class);
+	private Logger logger = LoggerFactory.getLogger(RolloverFileMessageHandler.class);
 
 	private String filename;
 	private boolean append;
@@ -61,21 +59,19 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler
 
 		if (outputStream == null) {
 			try {
-				
+
 				long startRolloverTimeMs = -1;
-				
+
 				if (startRolloverNow) {
 					startRolloverTimeMs = new Date().getTime();
 				}
-				
-				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(
-						filename, append, retainDays,
-						TimeZone.getTimeZone(timeZoneID), dateFormat,
-						backupFormat, startRolloverTimeMs, rolloverPeriod);
+
+				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
+						retainDays, TimeZone.getTimeZone(timeZoneID), dateFormat, backupFormat, startRolloverTimeMs,
+						rolloverPeriod);
 
 				if (bufferSize > 0) {
-					outputStream = new BufferedOutputStream(
-							rolloverFileOutputStream, bufferSize);
+					outputStream = new BufferedOutputStream(rolloverFileOutputStream, bufferSize);
 				} else {
 					outputStream = rolloverFileOutputStream;
 				}
@@ -122,19 +118,16 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler
 			try {
 				IOUtils.write(((String) payload), outputStream);
 			} catch (IOException e) {
-				logger.error(
-						"Filed to write payload to rollover output stream", e);
+				logger.error("Filed to write payload to rollover output stream", e);
 			}
 		} else if (payload instanceof byte[]) {
 			try {
 				IOUtils.write(((byte[]) payload), outputStream);
 			} catch (IOException e) {
-				logger.error(
-						"Filed to write payload to rollover output stream", e);
+				logger.error("Filed to write payload to rollover output stream", e);
 			}
 		} else {
-			throw new MessagingException(message,
-					"Only String and byte[] message payload are supported");
+			throw new MessagingException(message, "Only String and byte[] message payload are supported");
 		}
 
 		if (flushRate > 0) {
@@ -222,5 +215,5 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler
 
 	public void setRolloverPeriod(long rolloverPeriod) {
 		this.rolloverPeriod = rolloverPeriod;
-	}		
+	}
 }

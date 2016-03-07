@@ -35,9 +35,8 @@ import java.util.TimerTask;
 /**
  * RolloverFileOutputStream
  * 
- * This output stream puts content in a file that is rolled over every
- * rolloverPeriodMs, starting from rolloverStartTimeMs. The filename must
- * include the string "yyyy_mm_dd", which is replaced with the actual date when
+ * This output stream puts content in a file that is rolled over every rolloverPeriodMs, starting from
+ * rolloverStartTimeMs. The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
  * creating and rolling over the file.
  * 
  * Old files are retained for a number of days before being deleted.
@@ -63,9 +62,8 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 
 	/**
 	 * @param filename
-	 *            The filename must include the string "yyyy_mm_dd", which is
-	 *            replaced with the actual date when creating and rolling over
-	 *            the file.
+	 *            The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
+	 *            creating and rolling over the file.
 	 * @throws IOException
 	 *             if unable to create output
 	 */
@@ -75,84 +73,73 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 
 	/**
 	 * @param filename
-	 *            The filename must include the string "yyyy_mm_dd", which is
-	 *            replaced with the actual date when creating and rolling over
-	 *            the file.
+	 *            The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
+	 *            creating and rolling over the file.
 	 * @param append
 	 *            If true, existing files will be appended to.
 	 * @throws IOException
 	 *             if unable to create output
 	 */
-	public RolloverFileOutputStream(String filename, boolean append)
-			throws IOException {
+	public RolloverFileOutputStream(String filename, boolean append) throws IOException {
 		this(filename, append, ROLLOVER_FILE_RETAIN_DAYS);
 	}
 
 	/**
 	 * @param filename
-	 *            The filename must include the string "yyyy_mm_dd", which is
-	 *            replaced with the actual date when creating and rolling over
-	 *            the file.
+	 *            The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
+	 *            creating and rolling over the file.
 	 * @param append
 	 *            If true, existing files will be appended to.
 	 * @param retainDays
-	 *            The number of days to retain files before deleting them. 0 to
-	 *            retain forever.
+	 *            The number of days to retain files before deleting them. 0 to retain forever.
 	 * @throws IOException
 	 *             if unable to create output
 	 */
-	public RolloverFileOutputStream(String filename, boolean append,
-			int retainDays) throws IOException {
+	public RolloverFileOutputStream(String filename, boolean append, int retainDays) throws IOException {
 		this(filename, append, retainDays, TimeZone.getDefault());
 	}
 
 	/**
 	 * @param filename
-	 *            The filename must include the string "yyyy_mm_dd", which is
-	 *            replaced with the actual date when creating and rolling over
-	 *            the file.
+	 *            The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
+	 *            creating and rolling over the file.
 	 * @param append
 	 *            If true, existing files will be appended to.
 	 * @param retainDays
-	 *            The number of days to retain files before deleting them. 0 to
-	 *            retain forever.
+	 *            The number of days to retain files before deleting them. 0 to retain forever.
 	 * @param zone
 	 *            the timezone for the output
 	 * @throws IOException
 	 *             if unable to create output
 	 */
-	public RolloverFileOutputStream(String filename, boolean append,
-			int retainDays, TimeZone zone) throws IOException {
+	public RolloverFileOutputStream(String filename, boolean append, int retainDays, TimeZone zone) throws IOException {
 
-		this(filename, append, retainDays, zone, null, null, -1,
-				DEFAULT_ROLLOVER_PERIOD);
+		this(filename, append, retainDays, zone, null, null, -1, DEFAULT_ROLLOVER_PERIOD);
 	}
 
 	/**
 	 * @param filename
-	 *            The filename must include the string "yyyy_mm_dd", which is
-	 *            replaced with the actual date when creating and rolling over
-	 *            the file.
+	 *            The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
+	 *            creating and rolling over the file.
 	 * @param append
 	 *            If true, existing files will be appended to.
 	 * @param retainDays
-	 *            The number of days to retain files before deleting them. 0 to
-	 *            retain forever.
+	 *            The number of days to retain files before deleting them. 0 to retain forever.
 	 * @param zone
 	 *            the timezone for the output
 	 * @param dateFormat
-	 *            The format for the date file substitution. The default is
-	 *            "yyyy_MM_dd".
+	 *            The format for the date file substitution. The default is "yyyy_MM_dd".
 	 * @param backupFormat
-	 *            The format for the file extension of backup files. The default
-	 *            is "HHmmssSSS".
+	 *            The format for the file extension of backup files. The default is "HHmmssSSS".
+	 * @param rolloverStartTimeMs
+	 *            Defines the time in [ms] of the first file roll over process to start.
+	 * @param rolloverPeriodMs
+	 *            Defines the frequency (in ms) of the file roll over processes.
 	 * @throws IOException
 	 *             if unable to create output
 	 */
-	public RolloverFileOutputStream(String filename, boolean append,
-			int retainDays, TimeZone zone, String dateFormat,
-			String backupFormat, long rolloverStartTimeMs, long rolloverPeriodMs)
-			throws IOException {
+	public RolloverFileOutputStream(String filename, boolean append, int retainDays, TimeZone zone, String dateFormat,
+			String backupFormat, long rolloverStartTimeMs, long rolloverPeriodMs) throws IOException {
 
 		super(null);
 
@@ -189,8 +176,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		synchronized (RolloverFileOutputStream.class) {
 
 			if (rolloverTimer == null) {
-				rolloverTimer = new Timer(
-						RolloverFileOutputStream.class.getName(), true);
+				rolloverTimer = new Timer(RolloverFileOutputStream.class.getName(), true);
 			}
 
 			rollTask = new RollTask();
@@ -200,8 +186,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				Calendar now = Calendar.getInstance();
 				now.setTimeZone(zone);
 
-				GregorianCalendar midnight = new GregorianCalendar(
-						now.get(Calendar.YEAR), now.get(Calendar.MONTH),
+				GregorianCalendar midnight = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
 						now.get(Calendar.DAY_OF_MONTH), 23, 0);
 				midnight.setTimeZone(zone);
 				midnight.add(Calendar.HOUR, 1);
@@ -211,8 +196,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				startTime = new Date(rolloverStartTimeMs);
 			}
 
-			rolloverTimer.scheduleAtFixedRate(rollTask, startTime,
-					rolloverPeriodMs);
+			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, rolloverPeriodMs);
 		}
 	}
 
@@ -247,8 +231,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		String filename = file.getName();
 		int i = filename.toLowerCase(Locale.ENGLISH).indexOf(YYYY_MM_DD);
 		if (i >= 0) {
-			file = new File(dir, filename.substring(0, i)
-					+ fileDateFormat.format(now)
+			file = new File(dir, filename.substring(0, i) + fileDateFormat.format(now)
 					+ filename.substring(i + YYYY_MM_DD.length()));
 		}
 
@@ -261,8 +244,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 			// Yep
 			outputFile = file;
 			if (!appendToFile && file.exists()) {
-				file.renameTo(new File(file.toString() + "."
-						+ fileBackupFormat.format(now)));
+				file.renameTo(new File(file.toString() + "." + fileBackupFormat.format(now)));
 			}
 			OutputStream oldOut = out;
 			out = new FileOutputStream(file.toString(), appendToFile);
@@ -290,8 +272,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 			String[] logList = dir.list();
 			for (int i = 0; i < logList.length; i++) {
 				fn = logList[i];
-				if (fn.startsWith(prefix)
-						&& fn.indexOf(suffix, prefix.length()) >= 0) {
+				if (fn.startsWith(prefix) && fn.indexOf(suffix, prefix.length()) >= 0) {
 					File f = new File(dir, fn);
 					long date = f.lastModified();
 					if (((now - date) / (1000 * 60 * 60 * 24)) > fileRetainDays)

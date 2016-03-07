@@ -25,16 +25,14 @@ import org.springframework.xd.module.options.spi.ModuleOption;
  */
 public class RolloverFileOptionsMetadata {
 
-	// The filename must include the string "yyyy_mm_dd" which is replaced with
-	// the actual date when creating and
+	// The filename must include the string "yyyy_mm_dd" which is replaced with the actual date when creating and
 	// rolling over the file.
 	private String filename;
 
 	// If true, existing files will be appended to.
 	private boolean append = true;
 
-	// The number of days to retain files before deleting them. 0 to retain
-	// forever.
+	// The number of days to retain files before deleting them. 0 to retain forever.
 	private int retainDays = 0;
 
 	private String timeZoneID = TimeZone.getDefault().getID();
@@ -42,15 +40,13 @@ public class RolloverFileOptionsMetadata {
 	// The format for the date file substitution. The default is "yyyy_MM_dd".
 	private String dateFormat = "yyyy_MM_dd";
 
-	// The format for the file extension of backup files. The default is
-	// "HHmmssSSS".
+	// The format for the file extension of backup files. The default is "HHmmssSSS".
 	private String backupFormat = "HHmmssSSS";
 
 	// Output stream buffer size. If set to -1 no buffering is used
 	private int bufferSize = 8192;
 
-	// After how many messages the output buffer is flushed. If if zero then
-	// flush only on rollover event
+	// After how many messages the output buffer is flushed. If if zero then flush only on rollover event
 	private long flushRate = 0;
 
 	// Should the rollover trigger start now? if not it will start at midnight.
@@ -58,7 +54,6 @@ public class RolloverFileOptionsMetadata {
 
 	// How often to rollover files once started
 	private long rolloverPeriod = 1000L * 60 * 60 * 24;
-
 
 	@NotBlank
 	public String getFilename() {
