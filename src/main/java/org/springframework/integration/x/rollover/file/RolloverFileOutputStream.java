@@ -31,6 +31,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * RolloverFileOutputStream
@@ -55,10 +58,15 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	private SimpleDateFormat fileBackupFormat;
 	private SimpleDateFormat fileDateFormat;
 
-	private String fileName;
-	private File outputFile;
+	private String filePath;
+	private File primaryFile;
 	private boolean appendToFile;
 	private int fileRetainDays;
+	private long maxRolledFileSize;
+
+	private AtomicLong writtenBytesCounter = new AtomicLong(0);
+
+	private File fileDir;
 
 	/**
 	 * @param filename
@@ -113,8 +121,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	 *             if unable to create output
 	 */
 	public RolloverFileOutputStream(String filename, boolean append, int retainDays, TimeZone zone) throws IOException {
-
-		this(filename, append, retainDays, zone, null, null, -1, DEFAULT_ROLLOVER_PERIOD);
+		this(filename, append, retainDays, zone, null, null, -1, DEFAULT_ROLLOVER_PERIOD, -1);
 	}
 
 	/**
@@ -139,9 +146,12 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	 *             if unable to create output
 	 */
 	public RolloverFileOutputStream(String filename, boolean append, int retainDays, TimeZone zone, String dateFormat,
-			String backupFormat, long rolloverStartTimeMs, long rolloverPeriodMs) throws IOException {
+			String backupFormat, long rolloverStartTimeMs, long rolloverPeriodMs, long maxRolledFileSize)
+			throws IOException {
 
 		super(null);
+
+		this.maxRolledFileSize = maxRolledFileSize;
 
 		if (dateFormat == null) {
 			dateFormat = ROLLOVER_FILE_DATE_FORMAT;
@@ -158,20 +168,20 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		fileBackupFormat.setTimeZone(zone);
 		fileDateFormat.setTimeZone(zone);
 
-		if (filename != null) {
-			filename = filename.trim();
-			if (filename.length() == 0)
-				filename = null;
-		}
-
-		if (filename == null) {
+		if (StringUtils.isEmpty(filename)) {
 			throw new IllegalArgumentException("Invalid filename");
 		}
 
-		fileName = filename;
+		filePath = filename.trim();
+		fileDir = new File(filename).getParentFile();
+
+		if (!fileDir.isDirectory() || !fileDir.canWrite()) {
+			throw new IOException("Cannot write into directory: " + fileDir);
+		}
+
 		appendToFile = append;
 		fileRetainDays = retainDays;
-		setFile();
+		setFile(true);
 
 		synchronized (RolloverFileOutputStream.class) {
 
@@ -196,70 +206,75 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				startTime = new Date(rolloverStartTimeMs);
 			}
 
-			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, rolloverPeriodMs);
+			long period = (rolloverPeriodMs <= 0) ? 86400000 : rolloverPeriodMs;
+
+			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, period);
 		}
 	}
 
 	public String getFilename() {
-		return fileName;
+		return filePath;
 	}
 
 	public String getDatedFilename() {
-		if (outputFile == null) {
+		if (primaryFile == null) {
 			return null;
 		}
-		return outputFile.toString();
+		return primaryFile.toString();
 	}
 
 	public int getRetainDays() {
 		return fileRetainDays;
 	}
 
-	private synchronized void setFile() throws IOException {
-		// Check directory
-		File file = new File(fileName);
-		fileName = file.getCanonicalPath();
-		file = new File(fileName);
-		File dir = new File(file.getParent());
-		if (!dir.isDirectory() || !dir.canWrite()) {
-			throw new IOException("Cannot write log directory " + dir);
-		}
+	private synchronized void setFile(boolean force) throws IOException {
 
 		Date now = new Date();
 
-		// Is this a rollover file?
-		String filename = file.getName();
-		int i = filename.toLowerCase(Locale.ENGLISH).indexOf(YYYY_MM_DD);
-		if (i >= 0) {
-			file = new File(dir, filename.substring(0, i) + fileDateFormat.format(now)
-					+ filename.substring(i + YYYY_MM_DD.length()));
+		File newFile = new File(fileDir, getNewFileName(now));
+
+		if (newFile.exists() && !newFile.canWrite()) {
+			throw new IOException("Cannot write in file: " + newFile);
 		}
 
-		if (file.exists() && !file.canWrite()) {
-			throw new IOException("Cannot write log file " + file);
+		if (!appendToFile && newFile.exists()) {
+			// Expand the file name to prevents collision with existing files
+			newFile.renameTo(new File(newFile.getAbsolutePath() + "." + fileBackupFormat.format(now)));
 		}
 
 		// Do we need to change the output stream?
-		if (out == null || !file.equals(outputFile)) {
-			// Yep
-			outputFile = file;
-			if (!appendToFile && file.exists()) {
-				file.renameTo(new File(file.toString() + "." + fileBackupFormat.format(now)));
-			}
+		if (force || !newFile.equals(primaryFile)) {
+
+			primaryFile = newFile;
+
 			OutputStream oldOut = out;
-			out = new FileOutputStream(file.toString(), appendToFile);
+
+			out = new FileOutputStream(newFile, appendToFile);
+
 			if (oldOut != null) {
 				oldOut.close();
-				// if(log.isDebugEnabled())log.debug("Opened "+_file);
 			}
 		}
+	}
+
+	private String getNewFileName(Date date) {
+		// Is this a rollover file?
+		String fileName = new File(filePath).getName();
+
+		String newFileName = fileName;
+		int i = fileName.toLowerCase(Locale.ENGLISH).indexOf(YYYY_MM_DD);
+		if (i >= 0) {
+			newFileName = fileName.substring(0, i) + fileDateFormat.format(date)
+					+ fileName.substring(i + YYYY_MM_DD.length());
+		}
+		return newFileName;
 	}
 
 	private void removeOldFiles() {
 		if (fileRetainDays > 0) {
 			long now = System.currentTimeMillis();
 
-			File file = new File(fileName);
+			File file = new File(filePath);
 			File dir = new File(file.getParent());
 			String fn = file.getName();
 			int s = fn.toLowerCase(Locale.ENGLISH).indexOf(YYYY_MM_DD);
@@ -285,11 +300,13 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	@Override
 	public void write(byte[] buf) throws IOException {
 		out.write(buf);
+		checkFileSizeForRollover(buf.length);
 	}
 
 	@Override
 	public void write(byte[] buf, int off, int len) throws IOException {
 		out.write(buf, off, len);
+		checkFileSizeForRollover(len);
 	}
 
 	@Override
@@ -299,7 +316,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				super.close();
 			} finally {
 				out = null;
-				outputFile = null;
+				primaryFile = null;
 			}
 
 			rollTask.cancel();
@@ -310,10 +327,27 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		@Override
 		public void run() {
 			try {
-				RolloverFileOutputStream.this.setFile();
+				RolloverFileOutputStream.this.setFile(false);
 				RolloverFileOutputStream.this.removeOldFiles();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+		}
+	}
+
+	private void checkFileSizeForRollover(long byteCount) {
+		if (maxRolledFileSize > 0) {
+			long fileSize = writtenBytesCounter.addAndGet(byteCount);
+			if (fileSize >= maxRolledFileSize) {
+				// Start file rolling over
+				synchronized (RolloverFileOutputStream.class) {
+					try {
+						setFile(true);
+						writtenBytesCounter.set(0);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}

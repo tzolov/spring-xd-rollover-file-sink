@@ -44,8 +44,9 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 	private int bufferSize = 8192;
 	private long flushRate = 0;
 
-	private boolean startRolloverNow = false;
 	private long rolloverPeriod = 1000L * 60 * 60 * 24;
+
+	private long maxRolledFileSize = -1;
 
 	private AtomicLong messageCounter;
 	private volatile boolean running = false;
@@ -62,13 +63,13 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 				long startRolloverTimeMs = -1;
 
-				if (startRolloverNow) {
+				if (rolloverPeriod > 0) {
 					startRolloverTimeMs = new Date().getTime();
 				}
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
 						retainDays, TimeZone.getTimeZone(timeZoneID), dateFormat, backupFormat, startRolloverTimeMs,
-						rolloverPeriod);
+						rolloverPeriod, maxRolledFileSize);
 
 				if (bufferSize > 0) {
 					outputStream = new BufferedOutputStream(rolloverFileOutputStream, bufferSize);
@@ -201,19 +202,19 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 		this.flushRate = flushRate;
 	}
 
-	public boolean isStartRolloverNow() {
-		return startRolloverNow;
-	}
-
-	public void setStartRolloverNow(boolean startRolloverNow) {
-		this.startRolloverNow = startRolloverNow;
-	}
-
 	public long getRolloverPeriod() {
 		return rolloverPeriod;
 	}
 
 	public void setRolloverPeriod(long rolloverPeriod) {
 		this.rolloverPeriod = rolloverPeriod;
+	}
+
+	public long getMaxRolledFileSize() {
+		return maxRolledFileSize;
+	}
+
+	public void setMaxRolledFileSize(long maxRolledFileSize) {
+		this.maxRolledFileSize = maxRolledFileSize;
 	}
 }

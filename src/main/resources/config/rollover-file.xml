@@ -18,8 +18,8 @@
 		<property name="backupFormat" value="${backupFormat:HHmmssSSS}" />
 		<property name="bufferSize" value="${bufferSize:8192}" />
 		<property name="flushRate" value="${flushRate:0}" />
-		<property name="startRolloverNow" value="${startRolloverNow:false}" />
 		<property name="rolloverPeriod" value="${rolloverPeriod:86400000}" />
+		<property name="maxRolledFileSize" value="${maxRolledFileSize:-1}" />
 	</bean>
 
 	<int:service-activator input-channel="input"

@@ -49,11 +49,13 @@ public class RolloverFileOptionsMetadata {
 	// After how many messages the output buffer is flushed. If if zero then flush only on rollover event
 	private long flushRate = 0;
 
-	// Should the rollover trigger start now? if not it will start at midnight.
-	private boolean startRolloverNow = false;
-
-	// How often to rollover files once started
+	// How often to rollover files starting from NOW. If zero or non-positive the 24h period is set and it start at
+	// midnight.
 	private long rolloverPeriod = 1000L * 60 * 60 * 24;
+
+	// Fix a maximal file size after which a roll over is triggered. Non positive values means that the file size roll
+	// over is deactivated.
+	private long maxRolledFileSize = -1;
 
 	@NotBlank
 	public String getFilename() {
@@ -129,26 +131,26 @@ public class RolloverFileOptionsMetadata {
 		return flushRate;
 	}
 
-	@ModuleOption(value = "After how many messages the output buffer is flushed. If if zero then flush only on rollover event", defaultValue = "0")
+	@ModuleOption(value = "After how many messages the output buffer is flushed. When zero it flushes on rollover event only", defaultValue = "0")
 	public void setFlushRate(long flushRate) {
 		this.flushRate = flushRate;
-	}
-
-	public boolean isStartRolloverNow() {
-		return startRolloverNow;
-	}
-
-	@ModuleOption(value = "Should it start the rollover trigger now or at midnight", defaultValue = "false")
-	public void setStartRolloverNow(boolean startRolloverNow) {
-		this.startRolloverNow = startRolloverNow;
 	}
 
 	public long getRolloverPeriod() {
 		return rolloverPeriod;
 	}
 
-	@ModuleOption(value = "Period [ms] to repeat the file rollover", defaultValue = "86400000")
+	@ModuleOption(value = "Time period between two consecutive roll over tasks (in milliseconds). If set to -1 then it defaults to 24 hours period starting from midnight.", defaultValue = "86400000")
 	public void setRolloverPeriod(long rolloverPeriod) {
 		this.rolloverPeriod = rolloverPeriod;
+	}
+
+	public long getMaxRolledFileSize() {
+		return maxRolledFileSize;
+	}
+
+	@ModuleOption(value = "File size in bytes. When reached the file is rolled over. Set -1 to disable.", defaultValue = "-1")
+	public void setMaxRolledFileSize(long maxRolledFileSize) {
+		this.maxRolledFileSize = maxRolledFileSize;
 	}
 }

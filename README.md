@@ -20,8 +20,9 @@ xd:>module upload --file <path to>/rollover-file-1.0.0.BUILD-SNAPSHOT.jar --type
 
 ## Use
 
+Roll over files either when the file size became 10K (e.g. 10240 bytes) or rollover time period of 30 sec. elapses.
 ```
-xd>stream create --name rolloverFileTest --definition "time | rollover-file --filename=test_yyyy_mm_dd --dateFormat=yyyy_mm_dd_HHmm --retainDays=1 --flushRate=2" --deploy 
+xd>stream create --name rolloverFileTest --definition "time | rollover-file --filename=test_yyyy_mm_dd --dateFormat=yyyy_mm_dd_HHmmss --maxRolledFileSize=10240 --rolloverPeriod=30000" --deploy 
 ```
 
 ### Options
@@ -72,19 +73,19 @@ xd>stream create --name rolloverFileTest --definition "time | rollover-file --fi
 		</tr>
 		<tr>
 			<td><sub>flushRate</sub></td>
-			<td><sub>After how many messages the output buffer is flushed. If if zero then flush only on rollover event.</sub></td>
+			<td><sub>After how many messages the output buffer is flushed. When zero it flushes on file rollover only.</sub></td>
 			<td><sub>0</sub></td>
 		</tr>
 		<tr>
-			<td><sub>startRolloverNow</sub></td>
-			<td><sub>Should it start the rollover trigger now or at midnight.</sub></td>
-			<td><sub>false</sub></td>
+			<td><sub>rolloverPeriod</sub></td>
+			<td><sub>Time period between two consecutive roll over tasks (in milliseconds). If set to -1 then it defaults to 24 hours period starting from midnight.</sub></td>
+			<td><sub>86400000 (~24h)</sub></td>
 		</tr>
 		<tr>
-			<td><sub>rolloverPeriod</sub></td>
-			<td><sub>Period [ms] to repeat the file rollover.</sub></td>
-			<td><sub>86400000</sub></td>
-		</tr>		
+			<td><sub>maxRolledFileSize</sub></td>
+			<td><sub>File size in bytes. When reached the file is rolled over. Set -1 to disable.</sub></td>
+			<td><sub>-1</sub></td>
+		</tr>				
 	</tbody>	  	
 </table>
 

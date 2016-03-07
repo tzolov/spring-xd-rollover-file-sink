@@ -12,10 +12,11 @@
 
 	<util:properties id="props">
 		<prop key="filename">./test_results/test666_yyyy_mm_dd</prop>
-		<prop key="dateFormat">yyyy_MM_dd_HH_mm_ss</prop>
+		<prop key="dateFormat">yyyy_MM_dd_HH_mm_ss_sss</prop>		
+		<prop key="maxRolledFileSize">5</prop>
+		<prop key="bufferSize">-1</prop>
 		<prop key="flushRate">1</prop>
-		<prop key="rolloverPeriod">1000</prop>
-		<prop key="append">true</prop>
+		<prop key="append">false</prop>
 	</util:properties>
 
 	<import resource="classpath:config/rollover-file.xml" />
