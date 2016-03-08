@@ -66,22 +66,15 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 		if (outputStream == null) {
 			try {
 
-				long startRolloverTimeMs = -1;
-
-				if (rolloverPeriod > 0) {
-					startRolloverTimeMs = new Date().getTime();
-				}
+				long startRolloverTimeMs = (rolloverPeriod > 0) ? new Date().getTime() : -1;
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
-						TimeZone.getTimeZone(timeZoneID), dateFormat, startRolloverTimeMs,
-						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor,
-						binary);
+						TimeZone.getTimeZone(timeZoneID), dateFormat, startRolloverTimeMs, rolloverPeriod,
+						maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor, binary);
 
 				outputStream = rolloverFileOutputStream;
 
-				if (flushRate > 0) {
-					messageCounter = new AtomicLong(0);
-				}
+				messageCounter = new AtomicLong(0);
 
 				running = true;
 
@@ -104,6 +97,7 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 			} finally {
 				running = false;
 				outputStream = null;
+				logger.info("Rollover File Sink Stoped");
 			}
 		}
 	}
@@ -133,10 +127,8 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 			throw new MessagingException(message, "Only String and byte[] message payload are supported");
 		}
 
-		if (flushRate > 0) {
-			if ((messageCounter.get() % flushRate) == 0) {
-				outputStream.flush();
-			}
+		if (flushRate > 0 && ((messageCounter.addAndGet(1) % flushRate) == 0)) {
+			outputStream.flush();
 		}
 	}
 
