@@ -70,13 +70,9 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
 						retainDays, TimeZone.getTimeZone(timeZoneID), dateFormat, backupFormat, startRolloverTimeMs,
-						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive);
+						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize);
 
-				// if (bufferSize > 0) {
-				// outputStream = new BufferedOutputStream(rolloverFileOutputStream, bufferSize);
-				// } else {
 				outputStream = rolloverFileOutputStream;
-				// }
 
 				if (flushRate > 0) {
 					messageCounter = new AtomicLong(0);

@@ -1,16 +1,18 @@
-# Spring Xd Rollover File Sink
+# SpringXD Rolling File Sink
 
 Rollover file sink that is rolled on preconfigured intervals.
-File is rolled over every *rolloverPeriodMs*, starting from *rolloverStartTimeMs*. The *filename* must 
+File is rolled over every __rolloverPeriodMs__, starting from __rolloverStartTimeMs__. The __filename__ must 
 include the string __yyyy_mm_dd__, which is replaced with the actual date when creating and rolling over the file.
 
-Old files are retained for a *retainDays* number of days before being deleted.
+Old files are retained for a __retainDays__ number of days before being deleted.
 
 ## Build
 
 ```
 ./gradlew clean build
 ```
+
+The `rollover-file-1.0.0.BUILD-SNAPSHOT.jar` is produced in `./build/libs`. 
 
 ## Upload module
 
@@ -21,6 +23,7 @@ xd:>module upload --file <path to>/rollover-file-1.0.0.BUILD-SNAPSHOT.jar --type
 ## Use
 
 Roll over files either when the file size became 10K (e.g. 10240 bytes) or rollover time period of 30 sec. elapses.
+
 ```
 xd>stream create --name rolloverFileTest --definition "time | rollover-file --filename=test_yyyy_mm_dd --dateFormat=yyyy_mm_dd_HHmmss --maxRolledFileSize=10240 --rolloverPeriod=30000 --archivePrefix=archive" --deploy 
 ```

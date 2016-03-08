@@ -12,15 +12,20 @@
  */
 package org.springframework.integration.x.rollover.file;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,12 +71,19 @@ public class RolloverFileMessageHandlerTest {
 		Iterator<File> iterator = files.iterator();
 
 		File firstFile = iterator.next();
+		System.out.println(firstFile);
 		assertTrue(firstFile.toString().startsWith("./test_results/archive.test666_"));
-//		assertEquals("foo", IOUtils.toString(firstFile.toURI()));
+		// assertEquals("foo", IOUtils.toString(firstFile.toURI()));
+		assertEquals("foo", uncompress(firstFile));
 
 		File secondFile = iterator.next();
+		System.out.println(secondFile);
 		assertTrue(secondFile.toString().startsWith("./test_results/test666_"));
-//		assertEquals("bar", IOUtils.toString(secondFile.toURI()));
+		assertEquals("bar", IOUtils.toString(secondFile.toURI()));
+	}
+
+	private String uncompress(File compressedFile) throws FileNotFoundException, IOException {
+		return IOUtils.toString(new GZIPInputStream(new FileInputStream(compressedFile)));
 	}
 
 	@After
