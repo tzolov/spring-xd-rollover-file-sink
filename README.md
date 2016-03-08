@@ -93,7 +93,12 @@ xd>stream create --name rolloverFileTest --definition "time | rollover-file --fi
 			<td><sub>compressArchive</sub></td>
 			<td><sub>If true the rolled files are compressed with gzip.</sub></td>
 			<td><sub>true</sub></td>
-		</tr>		
+		</tr>
+		<tr>
+			<td><sub>binary</sub></td>
+			<td><sub>If false, will append a newline character at the end of each line.</sub></td>
+			<td><sub>false</sub></td>
+		</tr>						
 	</tbody>	  	
 </table>
 
