@@ -55,6 +55,8 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 	@Autowired
 	private FileCompressor fileCompressor;
 
+	private boolean binary;
+
 	public RolloverFileMessageHandler() {
 	}
 
@@ -72,7 +74,8 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
 						TimeZone.getTimeZone(timeZoneID), dateFormat, startRolloverTimeMs,
-						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor);
+						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor,
+						binary);
 
 				outputStream = rolloverFileOutputStream;
 
@@ -215,5 +218,13 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 	public void setCompressArchive(boolean compressArchive) {
 		this.compressArchive = compressArchive;
+	}
+
+	public boolean isBinary() {
+		return binary;
+	}
+
+	public void setBinary(boolean binary) {
+		this.binary = binary;
 	}
 }

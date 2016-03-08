@@ -73,11 +73,11 @@ public class RolloverFileMessageHandlerTest {
 		File firstFile = iterator.next();
 		assertTrue(firstFile.toString().startsWith("./test_results/archive.test666_"));
 		// no gzip at the moment as the compression now happens asynchronous
-		assertEquals("foo", IOUtils.toString(firstFile.toURI()));
+		assertEquals("foo\n", IOUtils.toString(firstFile.toURI()));
 
 		File secondFile = iterator.next();
 		assertTrue(secondFile.toString().startsWith("./test_results/test666_"));
-		assertEquals("bar", IOUtils.toString(secondFile.toURI()));
+		assertEquals("bar\n", IOUtils.toString(secondFile.toURI()));
 	}
 
 	public static String uncompress(File compressedFile) throws FileNotFoundException, IOException {
