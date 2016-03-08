@@ -50,14 +50,9 @@ xd>stream create --name rolloverFileTest --definition "time | rollover-file --fi
 			<td><sub>true</sub></td>
 		</tr>
 		<tr>
-			<td><sub>retainDays</sub></td>
-			<td><sub>The number of days to retain files before deleting them. 0 to retain forever.</sub></td>
-			<td><sub>0</sub></td>
-		</tr>
-		<tr>
 			<td><sub>dateFormat</sub></td>
-			<td><sub>The format for the date file substitution. The default is yyyy_MM_dd.</sub></td>
-			<td><sub>yyyy_MM_dd</sub></td>
+			<td><sub>The format for the date substitution. The date in this format will replace the yyyy_mm_dd placeholder in the filename expression</sub></td>
+			<td><sub>yyyyMMdd_HHmmssSSS</sub></td>
 		</tr>
 		<tr>
 			<td><sub>timeZoneID</sub></td>
