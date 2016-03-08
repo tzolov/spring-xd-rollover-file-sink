@@ -28,6 +28,8 @@ import org.springframework.xd.module.options.ModuleOption;
 import org.springframework.xd.module.options.ModuleOptionsMetadata;
 import org.springframework.xd.module.options.ModuleOptionsMetadataResolver;
 
+import java.util.TimeZone;
+
 public class RolloverFileOptionsMetadataTest {
 
 	@SuppressWarnings("unchecked")
@@ -41,7 +43,7 @@ public class RolloverFileOptionsMetadataTest {
 		assertThat(
 				metadata,
 				containsInAnyOrder(moduleOptionNamed("filename"), moduleOptionNamed("append"),
-						moduleOptionNamed("retainDays"), moduleOptionNamed("timeZoneID"),
+						moduleOptionNamed("timeZoneID"),
 						moduleOptionNamed("dateFormat"), moduleOptionNamed("backupFormat"),
 						moduleOptionNamed("bufferSize"), moduleOptionNamed("flushRate"),
 						moduleOptionNamed("rolloverPeriod"), moduleOptionNamed("maxRolledFileSize"),
@@ -55,14 +57,11 @@ public class RolloverFileOptionsMetadataTest {
 			if (moduleOption.getName().equals("append")) {
 				assertEquals(true, moduleOption.getDefaultValue());
 			}
-			if (moduleOption.getName().equals("retainDays")) {
-				assertEquals(0, moduleOption.getDefaultValue());
-			}
 			if (moduleOption.getName().equals("timeZoneID")) {
-				assertEquals("Europe/Amsterdam", moduleOption.getDefaultValue());
+				assertEquals(TimeZone.getDefault().getID(), moduleOption.getDefaultValue());
 			}
 			if (moduleOption.getName().equals("dateFormat")) {
-				assertEquals("yyyy_MM_dd", moduleOption.getDefaultValue());
+				assertEquals("yyyyMMdd_HHmmssSSS", moduleOption.getDefaultValue());
 			}
 			if (moduleOption.getName().equals("backupFormat")) {
 				assertEquals("HHmmssSSS", moduleOption.getDefaultValue());

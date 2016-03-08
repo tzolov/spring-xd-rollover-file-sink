@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration.xsd">
+<beans 	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:int="http://www.springframework.org/schema/integration"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans.xsd
+		 	http://www.springframework.org/schema/context
+    		http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/integration
+			http://www.springframework.org/schema/integration/spring-integration.xsd">
+
+	<context:component-scan base-package="org.springframework.integration.x.rollover.file.config" />
 
 	<int:channel id="input" fixed-subscriber="true" />
 
@@ -12,9 +18,8 @@
 		class="org.springframework.integration.x.rollover.file.RolloverFileMessageHandler">
 		<property name="filename" value="${filename}" />
 		<property name="append" value="${append:true}" />
-		<property name="retainDays" value="${retainDays:0}" />
 		<property name="timeZoneID" value="${timeZoneID:Europe/Amsterdam}" />
-		<property name="dateFormat" value="${dateFormat:yyyy_MM_dd}" />
+		<property name="dateFormat" value="${dateFormat:yyyyMMdd_HHmmssSSS}" />
 		<property name="backupFormat" value="${backupFormat:HHmmssSSS}" />
 		<property name="bufferSize" value="${bufferSize:8192}" />
 		<property name="flushRate" value="${flushRate:0}" />
@@ -26,4 +31,5 @@
 
 	<int:service-activator input-channel="input"
 		auto-startup="false" ref="rolloverFileMessageHandler" />
+
 </beans>
