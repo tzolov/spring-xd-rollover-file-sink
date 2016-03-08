@@ -14,13 +14,10 @@ package org.springframework.integration.x.rollover.file;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

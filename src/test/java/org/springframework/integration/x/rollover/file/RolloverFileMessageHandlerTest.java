@@ -71,13 +71,10 @@ public class RolloverFileMessageHandlerTest {
 		Iterator<File> iterator = files.iterator();
 
 		File firstFile = iterator.next();
-		System.out.println(firstFile);
 		assertTrue(firstFile.toString().startsWith("./test_results/archive.test666_"));
-		// assertEquals("foo", IOUtils.toString(firstFile.toURI()));
 		assertEquals("foo", uncompress(firstFile));
 
 		File secondFile = iterator.next();
-		System.out.println(secondFile);
 		assertTrue(secondFile.toString().startsWith("./test_results/test666_"));
 		assertEquals("bar", IOUtils.toString(secondFile.toURI()));
 	}
