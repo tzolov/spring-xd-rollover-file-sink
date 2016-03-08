@@ -113,14 +113,13 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 		if (payload instanceof String) {
 			try {
-				outputStream.rollover();
-
 				String s = (String) payload;
 				if (!binary) {
 					s += "\n";
 				}
 				IOUtils.write(s, outputStream);
 
+				// rollover file after write completed.
 				outputStream.rollover();
 			} catch (IOException e) {
 				logger.error("Failed to write payload to rollover output stream", e);

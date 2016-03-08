@@ -278,24 +278,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				// Start file roll over
 				synchronized (RolloverFileOutputStream.class) {
 					try {
-						setFile(true);
-						writtenBytesCounter.set(0);
-					} catch (IOException e) {
-						logger.error("roll over failed:", e);
-					}
-				}
-			}
-		}
-	}
-
-	private void checkFileSizeForRollover(long byteCount) {
-		if (maxRolledFileSize > 0) {
-			long fileSize = writtenBytesCounter.addAndGet(byteCount);
-			if (fileSize >= maxRolledFileSize) {
-				// Start file roll over
-				synchronized (RolloverFileOutputStream.class) {
-					try {
-						setFile(true);
+						setFile(false);
 						writtenBytesCounter.set(0);
 					} catch (IOException e) {
 						logger.error("roll over failed:", e);
