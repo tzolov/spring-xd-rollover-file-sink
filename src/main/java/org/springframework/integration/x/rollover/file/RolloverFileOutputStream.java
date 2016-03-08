@@ -73,8 +73,6 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 
 	private FileCompressor fileCompressor;
 
-	private boolean binary = false;
-
 	/**
 	 * @param filename
 	 *            The filename must include the string "yyyy_mm_dd", which is replaced with the actual date when
@@ -94,8 +92,8 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	 */
 	public RolloverFileOutputStream(String filename, boolean append, TimeZone zone, String dateFormat,
 			long rolloverStartTimeMs, long rolloverPeriodMs, long maxRolledFileSize,
-			String archivePrefix, boolean compressArchive, int bufferSize, FileCompressor fileCompressor,
-			boolean binary) throws IOException {
+			String archivePrefix, boolean compressArchive, int bufferSize, FileCompressor fileCompressor)
+			throws IOException {
 
 		super(null);
 
@@ -153,7 +151,6 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 
 		this.fileCompressor = fileCompressor;
-		this.binary = binary;
 	}
 
 	public String getFilename() {
@@ -219,18 +216,12 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	@Override
 	public void write(byte[] buf) throws IOException {
 		out.write(buf);
-		if ( !binary ) {
-			out.write("\n".getBytes());
-		}
 		checkFileSizeForRollover(buf.length);
 	}
 
 	@Override
 	public void write(byte[] buf, int off, int len) throws IOException {
 		out.write(buf, off, len);
-		if ( !binary ) {
-			out.write("\n".getBytes());
-		}
 		checkFileSizeForRollover(len);
 	}
 
@@ -240,7 +231,6 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 			try {
 				super.close();
 				renameAndCompress(primaryFile);
-				fileCompressor.compressFile(primaryFile.getAbsolutePath());
 			} finally {
 				out = null;
 				primaryFile = null;
@@ -256,7 +246,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 			try {
 				RolloverFileOutputStream.this.setFile(false);
 			} catch (IOException e) {
-				logger.error("Rool task failed:", e);
+				logger.error("Roll task failed:", e);
 			}
 		}
 	}

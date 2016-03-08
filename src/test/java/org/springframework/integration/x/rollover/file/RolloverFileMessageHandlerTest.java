@@ -46,7 +46,7 @@ public class RolloverFileMessageHandlerTest {
 	@Autowired
 	MessageChannel input;
 
-	File tmpDir = new File("./test_results");
+	File tmpDir = new File("test_results");
 
 	@Before
 	public void before() {
@@ -71,12 +71,12 @@ public class RolloverFileMessageHandlerTest {
 		Iterator<File> iterator = files.iterator();
 
 		File firstFile = iterator.next();
-		assertTrue(firstFile.toString().startsWith("./test_results/archive.test666_"));
+		assertTrue(firstFile.toString().startsWith("test_results/archive.test666_"));
 		// no gzip at the moment as the compression now happens asynchronous
 		assertEquals("foo\n", IOUtils.toString(firstFile.toURI()));
 
 		File secondFile = iterator.next();
-		assertTrue(secondFile.toString().startsWith("./test_results/test666_"));
+		assertTrue(secondFile.toString().startsWith("test_results/test666_"));
 		assertEquals("bar\n", IOUtils.toString(secondFile.toURI()));
 	}
 
