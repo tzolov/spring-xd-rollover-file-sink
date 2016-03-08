@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +73,8 @@ public class RolloverFileMessageHandlerTest {
 
 		File firstFile = iterator.next();
 		assertTrue(firstFile.toString().startsWith("./test_results/archive.test666_"));
-		assertEquals("foo", uncompress(firstFile));
+		// no gzip at the moment as the compression now happens asynchronous
+		assertEquals("foo", IOUtils.toString(firstFile.toURI()));
 
 		File secondFile = iterator.next();
 		assertTrue(secondFile.toString().startsWith("./test_results/test666_"));

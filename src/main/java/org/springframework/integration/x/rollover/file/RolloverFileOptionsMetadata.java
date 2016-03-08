@@ -32,13 +32,10 @@ public class RolloverFileOptionsMetadata {
 	// If true, existing files will be appended to.
 	private boolean append = true;
 
-	// The number of days to retain files before deleting them. 0 to retain forever.
-	private int retainDays = 0;
-
 	private String timeZoneID = TimeZone.getDefault().getID();
 
-	// The format for the date file substitution. The default is "yyyy_MM_dd".
-	private String dateFormat = "yyyy_MM_dd";
+	// The format for the date file substitution. The default is "yyyyMMdd_HHmmssSSS".
+	private String dateFormat = "yyyyMMdd_HHmmssSSS";
 
 	// The format for the file extension of backup files. The default is "HHmmssSSS".
 	private String backupFormat = "HHmmssSSS";
@@ -79,17 +76,6 @@ public class RolloverFileOptionsMetadata {
 	@ModuleOption(value = "If true, existing files will be appended to", defaultValue = "true")
 	public void setAppend(boolean append) {
 		this.append = append;
-	}
-
-	@Min(0)
-	@NotNull
-	public int getRetainDays() {
-		return retainDays;
-	}
-
-	@ModuleOption(value = "The number of days to retain files before deleting them. 0 to retain forever.", defaultValue = "0")
-	public void setRetainDays(int retainDays) {
-		this.retainDays = retainDays;
 	}
 
 	@NotNull

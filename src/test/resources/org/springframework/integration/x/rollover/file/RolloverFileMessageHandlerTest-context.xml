@@ -16,6 +16,7 @@
 		<prop key="flushRate">1</prop>
 		<prop key="rolloverPeriod">1000</prop>
 		<prop key="append">true</prop>
+		<prop key="compressArchive">false</prop>
 	</util:properties>
 
 	<import resource="classpath:config/rollover-file.xml" />

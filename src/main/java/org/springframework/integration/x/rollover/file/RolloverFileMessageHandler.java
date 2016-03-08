@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.integration.handler.AbstractMessageHandler;
 import org.springframework.messaging.Message;
@@ -53,6 +54,9 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 	private volatile boolean running = false;
 	private OutputStream outputStream = null;
 
+	@Autowired
+	private FileCompressor fileCompressor;
+
 	public RolloverFileMessageHandler() {
 	}
 
@@ -70,7 +74,7 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
 						retainDays, TimeZone.getTimeZone(timeZoneID), dateFormat, backupFormat, startRolloverTimeMs,
-						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize);
+						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor);
 
 				outputStream = rolloverFileOutputStream;
 
