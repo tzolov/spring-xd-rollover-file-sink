@@ -60,11 +60,6 @@ xd>stream create --name rolloverFileTest --definition "time | rollover-file --fi
 			<td><sub>yyyy_MM_dd</sub></td>
 		</tr>
 		<tr>
-			<td><sub>backupFormat</sub></td>
-			<td><sub>The format for the file extension of backup files. The default is HHmmssSSS.</sub></td>
-			<td><sub>HHmmssSSS</sub></td>
-		</tr>
-		<tr>
 			<td><sub>timeZoneID</sub></td>
 			<td><sub>TimeZone ID</sub></td>
 			<td><sub>Europe/Amsterdam</sub></td>

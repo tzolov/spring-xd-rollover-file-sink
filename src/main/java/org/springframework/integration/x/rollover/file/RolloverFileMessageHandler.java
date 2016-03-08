@@ -36,10 +36,8 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 	private String filename;
 	private boolean append;
-	private int retainDays;
 	private String timeZoneID;
 	private String dateFormat;
-	private String backupFormat;
 
 	private int bufferSize = 8192;
 	private long flushRate = 0;
@@ -73,7 +71,7 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 				}
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
-						retainDays, TimeZone.getTimeZone(timeZoneID), dateFormat, backupFormat, startRolloverTimeMs,
+						TimeZone.getTimeZone(timeZoneID), dateFormat, startRolloverTimeMs,
 						rolloverPeriod, maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor);
 
 				outputStream = rolloverFileOutputStream;
@@ -155,14 +153,6 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 		this.append = append;
 	}
 
-	public int getRetainDays() {
-		return retainDays;
-	}
-
-	public void setRetainDays(int retainDays) {
-		this.retainDays = retainDays;
-	}
-
 	public String getTimeZoneID() {
 		return timeZoneID;
 	}
@@ -177,14 +167,6 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
-	}
-
-	public String getBackupFormat() {
-		return backupFormat;
-	}
-
-	public void setBackupFormat(String backupFormat) {
-		this.backupFormat = backupFormat;
 	}
 
 	public int getBufferSize() {
@@ -233,5 +215,5 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 	public void setCompressArchive(boolean compressArchive) {
 		this.compressArchive = compressArchive;
-	}	
+	}
 }

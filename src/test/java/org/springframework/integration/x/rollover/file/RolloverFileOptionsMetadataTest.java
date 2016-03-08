@@ -43,8 +43,7 @@ public class RolloverFileOptionsMetadataTest {
 		assertThat(
 				metadata,
 				containsInAnyOrder(moduleOptionNamed("filename"), moduleOptionNamed("append"),
-						moduleOptionNamed("timeZoneID"),
-						moduleOptionNamed("dateFormat"), moduleOptionNamed("backupFormat"),
+						moduleOptionNamed("timeZoneID"), moduleOptionNamed("dateFormat"),
 						moduleOptionNamed("bufferSize"), moduleOptionNamed("flushRate"),
 						moduleOptionNamed("rolloverPeriod"), moduleOptionNamed("maxRolledFileSize"),
 						moduleOptionNamed("archivePrefix"), moduleOptionNamed("compressArchive")));
@@ -63,9 +62,6 @@ public class RolloverFileOptionsMetadataTest {
 			if (moduleOption.getName().equals("dateFormat")) {
 				assertEquals("yyyyMMdd_HHmmssSSS", moduleOption.getDefaultValue());
 			}
-			if (moduleOption.getName().equals("backupFormat")) {
-				assertEquals("HHmmssSSS", moduleOption.getDefaultValue());
-			}
 			if (moduleOption.getName().equals("bufferSize")) {
 				assertEquals(8192, moduleOption.getDefaultValue());
 			}
@@ -83,7 +79,7 @@ public class RolloverFileOptionsMetadataTest {
 			}
 			if (moduleOption.getName().equals("compressArchive")) {
 				assertEquals(true, moduleOption.getDefaultValue());
-			}			
+			}
 		}
 	}
 

@@ -27,7 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +80,7 @@ public class RolloverFileMessageHandlerTest {
 		assertEquals("bar", IOUtils.toString(secondFile.toURI()));
 	}
 
-	private String uncompress(File compressedFile) throws FileNotFoundException, IOException {
+	public static String uncompress(File compressedFile) throws FileNotFoundException, IOException {
 		return IOUtils.toString(new GZIPInputStream(new FileInputStream(compressedFile)));
 	}
 

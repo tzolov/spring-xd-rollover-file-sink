@@ -20,7 +20,6 @@
 		<property name="append" value="${append:true}" />
 		<property name="timeZoneID" value="${timeZoneID:Europe/Amsterdam}" />
 		<property name="dateFormat" value="${dateFormat:yyyyMMdd_HHmmssSSS}" />
-		<property name="backupFormat" value="${backupFormat:HHmmssSSS}" />
 		<property name="bufferSize" value="${bufferSize:8192}" />
 		<property name="flushRate" value="${flushRate:0}" />
 		<property name="rolloverPeriod" value="${rolloverPeriod:86400000}" />

@@ -14,7 +14,6 @@ package org.springframework.integration.x.rollover.file;
 
 import java.util.TimeZone;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -32,13 +31,11 @@ public class RolloverFileOptionsMetadata {
 	// If true, existing files will be appended to.
 	private boolean append = true;
 
+	// Environment time zone
 	private String timeZoneID = TimeZone.getDefault().getID();
 
 	// The format for the date file substitution. The default is "yyyyMMdd_HHmmssSSS".
 	private String dateFormat = "yyyyMMdd_HHmmssSSS";
-
-	// The format for the file extension of backup files. The default is "HHmmssSSS".
-	private String backupFormat = "HHmmssSSS";
 
 	// Output stream buffer size. If set to -1 no buffering is used
 	private int bufferSize = 8192;
@@ -86,16 +83,6 @@ public class RolloverFileOptionsMetadata {
 	@ModuleOption(value = "The format for the date file substitution. The default is \"yyyy_MM_dd\".", defaultValue = "yyyy_MM_dd")
 	public void setDateFormat(String dateFormat) {
 		this.dateFormat = dateFormat;
-	}
-
-	@NotNull
-	public String getBackupFormat() {
-		return backupFormat;
-	}
-
-	@ModuleOption(value = "The format for the file extension of backup files. The default is \"HHmmssSSS\".", defaultValue = "HHmmssSSS")
-	public void setBackupFormat(String backupFormat) {
-		this.backupFormat = backupFormat;
 	}
 
 	@NotNull

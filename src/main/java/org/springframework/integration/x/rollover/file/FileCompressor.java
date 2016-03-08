@@ -16,7 +16,7 @@ public class FileCompressor {
 
     private Logger logger = LoggerFactory.getLogger(FileCompressor.class);
 
-    private String archivePrefix = "archive";
+    //private String archivePrefix = "archive";
 
     @Value("${rollover.file.suffix.compress:.gz}")
     private String gzipExtention;

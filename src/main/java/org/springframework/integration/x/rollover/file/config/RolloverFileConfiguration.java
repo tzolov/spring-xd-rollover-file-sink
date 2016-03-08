@@ -1,15 +1,11 @@
 package org.springframework.integration.x.rollover.file.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.x.rollover.file.FileCompressor;
-import org.springframework.integration.x.rollover.file.RolloverFileOutputStream;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
-import java.util.TimeZone;
 
 /**
  * Created by bukowm on 08/03/16.
