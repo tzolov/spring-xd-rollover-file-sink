@@ -70,7 +70,7 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 				RolloverFileOutputStream rolloverFileOutputStream = new RolloverFileOutputStream(filename, append,
 						TimeZone.getTimeZone(timeZoneID), dateFormat, startRolloverTimeMs, rolloverPeriod,
-						maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor, binary);
+						maxRolledFileSize, archivePrefix, compressArchive, bufferSize, fileCompressor);
 
 				outputStream = rolloverFileOutputStream;
 
@@ -113,15 +113,19 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 		if (payload instanceof String) {
 			try {
-				IOUtils.write(((String) payload), outputStream);
+				String s = (String) payload;
+				if (!binary) {
+					s += "\n";
+				}
+				IOUtils.write(s, outputStream);
 			} catch (IOException e) {
-				logger.error("Filed to write payload to rollover output stream", e);
+				logger.error("Failed to write payload to rollover output stream", e);
 			}
 		} else if (payload instanceof byte[]) {
 			try {
 				IOUtils.write(((byte[]) payload), outputStream);
 			} catch (IOException e) {
-				logger.error("Filed to write payload to rollover output stream", e);
+				logger.error("Failed to write payload to rollover output stream", e);
 			}
 		} else {
 			throw new MessagingException(message, "Only String and byte[] message payload are supported");

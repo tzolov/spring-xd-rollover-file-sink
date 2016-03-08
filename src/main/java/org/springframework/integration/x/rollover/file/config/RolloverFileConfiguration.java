@@ -20,10 +20,10 @@ public class RolloverFileConfiguration {
     @Value("${rollover.file.thread.poolSize:2}")
     private int poolSize;
 
-    @Value("${rollover.file.thread.maxPoolSize:2}")
+    @Value("${rollover.file.thread.maxPoolSize:8}")
     private int maxPoolSize;
 
-    @Value("${rollover.file.thread.queueCapacity:2}")
+    @Value("${rollover.file.thread.queueCapacity:100}")
     private int queueCapacity;
 
     @Bean
