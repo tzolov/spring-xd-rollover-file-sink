@@ -26,6 +26,7 @@
 		<property name="maxRolledFileSize" value="${maxRolledFileSize:-1}" />
 		<property name="archivePrefix" value="${archivePrefix:archive}" />
 		<property name="compressArchive" value="${compressArchive:true}"></property>
+		<property name="binary" value="${binary:false}"></property>
 	</bean>
 
 	<int:service-activator input-channel="input"

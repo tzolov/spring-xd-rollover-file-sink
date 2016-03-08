@@ -55,7 +55,9 @@ public class RolloverFileOptionsMetadata {
 	private String archivePrefix = "archive";
 
 	private boolean compressArchive = true;
-	
+
+	private boolean binary = false;
+
 	@NotBlank
 	public String getFilename() {
 		return filename;
@@ -148,5 +150,14 @@ public class RolloverFileOptionsMetadata {
 	@ModuleOption(value = "If true the rolled files are compressed with gzip", defaultValue = "true")
 	public void setCompressArchive(boolean compressArchive) {
 		this.compressArchive = compressArchive;
-	}		
+	}
+
+	public boolean isBinary() {
+		return binary;
+	}
+
+	@ModuleOption(value = "if false, will append a newline character at the end of each line", defaultValue = "false")
+	public void setBinary(boolean binary) {
+		this.binary = binary;
+	}
 }
