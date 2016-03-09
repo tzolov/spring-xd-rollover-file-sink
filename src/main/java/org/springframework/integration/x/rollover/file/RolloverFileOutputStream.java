@@ -216,13 +216,15 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	@Override
 	public void write(byte[] buf) throws IOException {
 		out.write(buf);
-		checkFileSizeForRollover(buf.length);
+		// checkFileSizeForRollover(buf.length);
+		writtenBytesCounter.addAndGet(buf.length);
 	}
 
 	@Override
 	public void write(byte[] buf, int off, int len) throws IOException {
 		out.write(buf, off, len);
-		checkFileSizeForRollover(len);
+		// checkFileSizeForRollover(len);
+		writtenBytesCounter.addAndGet(len);
 	}
 
 	@Override
@@ -269,14 +271,14 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 	}
 
-	private void checkFileSizeForRollover(long byteCount) {
+	public void rollover() {
 		if (maxRolledFileSize > 0) {
-			long fileSize = writtenBytesCounter.addAndGet(byteCount);
+			long fileSize = writtenBytesCounter.get();
 			if (fileSize >= maxRolledFileSize) {
 				// Start file roll over
 				synchronized (RolloverFileOutputStream.class) {
 					try {
-						setFile(true);
+						setFile(false);
 						writtenBytesCounter.set(0);
 					} catch (IOException e) {
 						logger.error("roll over failed:", e);

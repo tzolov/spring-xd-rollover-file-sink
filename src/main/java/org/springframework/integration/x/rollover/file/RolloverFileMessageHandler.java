@@ -50,7 +50,7 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 
 	private AtomicLong messageCounter;
 	private volatile boolean running = false;
-	private OutputStream outputStream = null;
+	private RolloverFileOutputStream outputStream = null;
 
 	@Autowired
 	private FileCompressor fileCompressor;
@@ -118,6 +118,9 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 					s += "\n";
 				}
 				IOUtils.write(s, outputStream);
+
+				// rollover file after write completed.
+				outputStream.rollover();
 			} catch (IOException e) {
 				logger.error("Failed to write payload to rollover output stream", e);
 			}
