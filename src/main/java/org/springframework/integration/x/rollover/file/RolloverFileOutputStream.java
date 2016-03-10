@@ -91,9 +91,8 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	 *             if unable to create output
 	 */
 	public RolloverFileOutputStream(String filename, boolean append, TimeZone zone, String dateFormat,
-			long rolloverStartTimeMs, long rolloverPeriodMs, long maxRolledFileSize,
-			String archivePrefix, boolean compressArchive, int bufferSize, FileCompressor fileCompressor)
-			throws IOException {
+			long rolloverStartTimeMs, long rolloverPeriodMs, long maxRolledFileSize, String archivePrefix,
+			boolean compressArchive, int bufferSize, FileCompressor fileCompressor) throws IOException {
 
 		super(null);
 
@@ -120,7 +119,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 
 		appendToFile = append;
-		setFile(true);
+		setFile();
 
 		synchronized (RolloverFileOutputStream.class) {
 
@@ -130,27 +129,27 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 
 			rollTask = new RollTask();
 
-			Date startTime = null;
-			if (rolloverStartTimeMs <= 0) {
-				Calendar now = Calendar.getInstance();
-				now.setTimeZone(zone);
+			Date startTime = (rolloverStartTimeMs > 0) ? new Date(rolloverStartTimeMs) : getMidnightTime(zone);
 
-				GregorianCalendar midnight = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
-						now.get(Calendar.DAY_OF_MONTH), 23, 0);
-				midnight.setTimeZone(zone);
-				midnight.add(Calendar.HOUR, 1);
+			long rolloverPeriod = (rolloverPeriodMs <= 0) ? 86400000 : rolloverPeriodMs;
 
-				startTime = midnight.getTime();
-			} else {
-				startTime = new Date(rolloverStartTimeMs);
-			}
-
-			long period = (rolloverPeriodMs <= 0) ? 86400000 : rolloverPeriodMs;
-
-			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, period);
+			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, rolloverPeriod);
 		}
 
 		this.fileCompressor = fileCompressor;
+	}
+
+	private Date getMidnightTime(TimeZone zone) {
+
+		Calendar now = Calendar.getInstance();
+		now.setTimeZone(zone);
+
+		GregorianCalendar midnight = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
+				now.get(Calendar.DAY_OF_MONTH), 23, 0);
+		midnight.setTimeZone(zone);
+		midnight.add(Calendar.HOUR, 1);
+
+		return midnight.getTime();
 	}
 
 	public String getFilename() {
@@ -158,59 +157,49 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 	}
 
 	public String getDatedFilename() {
-		if (primaryFile == null) {
-			return null;
-		}
-		return primaryFile.toString();
+		return "" + primaryFile;
 	}
 
-	private synchronized void setFile(boolean force) throws IOException {
+	private synchronized void setFile() throws IOException {
 
+		File nextFile = new File(fileDir, getNextFileName());
+
+		if (nextFile.exists() && !nextFile.canWrite()) {
+			throw new IOException("Cannot write in file: " + nextFile);
+		}
+
+		if (!appendToFile && nextFile.exists()) {
+			throw new IOException("File already exists but append is disabled: " + nextFile);
+		}
+
+		File previousPrimaryFile = primaryFile;
+		primaryFile = nextFile;
+
+		OutputStream previousOut = out;
+		if (bufferSize > 0) {
+			out = new BufferedOutputStream(new FileOutputStream(nextFile, appendToFile), bufferSize);
+		} else {
+			out = new FileOutputStream(nextFile, appendToFile);
+		}
+
+		if (previousOut != null) {
+			previousOut.close();
+			renameAndCompress(previousPrimaryFile);
+		}
+	}
+
+	private String getNextFileName() {
 		Date now = new Date();
-
-		File newFile = new File(fileDir, getNewFileName(now));
-
-		if (newFile.exists() && !newFile.canWrite()) {
-			throw new IOException("Cannot write in file: " + newFile);
-		}
-
-		if (!appendToFile && newFile.exists()) {
-			// Expand the file name to prevents collision with existing files
-			throw new IOException("File already exists but append is disabled: " + newFile);
-		}
-
-		// Do we need to change the output stream?
-		if (force || !newFile.equals(primaryFile)) {
-
-			File oldPrimaryFile = primaryFile;
-			OutputStream oldOut = out;
-
-			primaryFile = newFile;
-
-			if (bufferSize > 0) {
-				out = new BufferedOutputStream(new FileOutputStream(newFile, appendToFile), bufferSize);
-			} else {
-				out = new FileOutputStream(newFile, appendToFile);
-			}
-
-			if (oldOut != null) {
-				oldOut.close();
-				renameAndCompress(oldPrimaryFile);
-			}
-		}
-	}
-
-	private String getNewFileName(Date date) {
 		// Is this a rollover file?
 		String fileName = new File(filePath).getName();
 
-		String newFileName = fileName;
+		String nextFileName = fileName;
 		int i = fileName.toLowerCase(Locale.ENGLISH).indexOf(YYYY_MM_DD);
 		if (i >= 0) {
-			newFileName = fileName.substring(0, i) + fileDateFormat.format(date)
+			nextFileName = fileName.substring(0, i) + fileDateFormat.format(now)
 					+ fileName.substring(i + YYYY_MM_DD.length());
 		}
-		return newFileName;
+		return nextFileName;
 	}
 
 	@Override
@@ -237,7 +226,6 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				out = null;
 				primaryFile = null;
 			}
-
 			rollTask.cancel();
 		}
 	}
@@ -246,7 +234,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		@Override
 		public void run() {
 			try {
-				RolloverFileOutputStream.this.setFile(false);
+				RolloverFileOutputStream.this.setFile();
 			} catch (IOException e) {
 				logger.error("Roll task failed:", e);
 			}
@@ -257,8 +245,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		if (file != null) {
 			File archiveFile = file;
 
-			// if a archivePrefix is configured we are going to
-			// rename the file first
+			// if a archivePrefix is configured we are going to rename the file first
 			if (!StringUtils.isEmpty(archivePrefix) && file != null) {
 				archiveFile = new File(file.getParentFile(), archivePrefix + "." + file.getName());
 				file.renameTo(archiveFile);
@@ -278,7 +265,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				// Start file roll over
 				synchronized (RolloverFileOutputStream.class) {
 					try {
-						setFile(false);
+						setFile();
 						writtenBytesCounter.set(0);
 					} catch (IOException e) {
 						logger.error("roll over failed:", e);
@@ -287,5 +274,4 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 			}
 		}
 	}
-
 }
