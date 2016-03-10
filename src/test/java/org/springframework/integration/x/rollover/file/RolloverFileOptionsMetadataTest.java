@@ -50,7 +50,6 @@ public class RolloverFileOptionsMetadataTest {
 						moduleOptionNamed("binary")));
 
 		for (ModuleOption moduleOption : metadata) {
-			System.out.println(moduleOption);
 			if (moduleOption.getName().equals("filename")) {
 				assertEquals(null, moduleOption.getDefaultValue());
 			}

@@ -54,7 +54,7 @@ public class RolloverFileMessageHandlerTest {
 	}
 
 	@Test
-	public void testRolloverFileSink() throws IOException, InterruptedException {
+	public void testRolloverFileSinkStringPayload() throws IOException, InterruptedException {
 
 		applicationContext.start();
 
@@ -64,6 +64,8 @@ public class RolloverFileMessageHandlerTest {
 
 		input.send(new GenericMessage<String>("bar")); // Second message should land in a new file.
 
+		applicationContext.stop();
+		
 		TreeSet<File> files = new TreeSet<File>(FileUtils.listFiles(tmpDir, null, false));
 
 		assertEquals(2, files.size());
@@ -72,14 +74,42 @@ public class RolloverFileMessageHandlerTest {
 
 		File firstFile = iterator.next();
 		assertTrue(firstFile.toString().startsWith("test_results/archive.test666_"));
-		// no gzip at the moment as the compression now happens asynchronous
 		assertEquals("foo\n", IOUtils.toString(firstFile.toURI()));
 
 		File secondFile = iterator.next();
-		assertTrue(secondFile.toString().startsWith("test_results/test666_"));
+		assertTrue(secondFile.toString().startsWith("test_results/archive.test666_"));
 		assertEquals("bar\n", IOUtils.toString(secondFile.toURI()));
 	}
 
+	
+	@Test
+	public void testRolloverFileSinkBytesPayload() throws IOException, InterruptedException {		
+
+		applicationContext.start();
+
+		input.send(new GenericMessage<byte[]>("foo".getBytes()));
+
+		Thread.sleep(1100); // > 1 sec to make sure it crosses the rollover time trigger set to 1 second.
+
+		input.send(new GenericMessage<byte[]>("bar".getBytes())); // Second message should land in a new file.
+
+		applicationContext.stop();
+		
+		TreeSet<File> files = new TreeSet<File>(FileUtils.listFiles(tmpDir, null, false));
+
+		assertEquals(2, files.size());
+
+		Iterator<File> iterator = files.iterator();
+
+		File firstFile = iterator.next();
+		assertTrue(firstFile.toString().startsWith("test_results/archive.test666_"));
+		assertEquals("foo", IOUtils.toString(firstFile.toURI()));
+
+		File secondFile = iterator.next();
+		assertTrue(secondFile.toString().startsWith("test_results/archive.test666_"));
+		assertEquals("bar", IOUtils.toString(secondFile.toURI()));
+	}
+	
 	public static String uncompress(File compressedFile) throws FileNotFoundException, IOException {
 		return IOUtils.toString(new GZIPInputStream(new FileInputStream(compressedFile)));
 	}

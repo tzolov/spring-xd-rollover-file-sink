@@ -271,7 +271,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 	}
 
-	public void rollover() {
+	public void rolloverOnFileSize() {
 		if (maxRolledFileSize > 0) {
 			long fileSize = writtenBytesCounter.get();
 			if (fileSize >= maxRolledFileSize) {

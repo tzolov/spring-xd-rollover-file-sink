@@ -13,7 +13,6 @@
 package org.springframework.integration.x.rollover.file;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
@@ -118,9 +117,7 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 					s += "\n";
 				}
 				IOUtils.write(s, outputStream);
-
-				// rollover file after write completed.
-				outputStream.rollover();
+				
 			} catch (IOException e) {
 				logger.error("Failed to write payload to rollover output stream", e);
 			}
@@ -137,6 +134,9 @@ public class RolloverFileMessageHandler extends AbstractMessageHandler implement
 		if (flushRate > 0 && ((messageCounter.addAndGet(1) % flushRate) == 0)) {
 			outputStream.flush();
 		}
+		
+		// rollover file after write completed.
+		outputStream.rolloverOnFileSize();
 	}
 
 	public String getFilename() {
