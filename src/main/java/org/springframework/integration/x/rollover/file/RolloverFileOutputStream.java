@@ -48,6 +48,8 @@ import org.slf4j.LoggerFactory;
  */
 public class RolloverFileOutputStream extends FilterOutputStream {
 
+	private static final int HOURS_24_IN_MS = 86400000;
+
 	private Logger logger = LoggerFactory.getLogger(RolloverFileOutputStream.class);
 
 	private static Timer rolloverTimer;
@@ -119,37 +121,12 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 
 		appendToFile = append;
-		setFile();
 
-		synchronized (RolloverFileOutputStream.class) {
+		rollFile();
 
-			if (rolloverTimer == null) {
-				rolloverTimer = new Timer(RolloverFileOutputStream.class.getName(), true);
-			}
-
-			rollTask = new RollTask();
-
-			Date startTime = (rolloverStartTimeMs > 0) ? new Date(rolloverStartTimeMs) : getMidnightTime(zone);
-
-			long rolloverPeriod = (rolloverPeriodMs <= 0) ? 86400000 : rolloverPeriodMs;
-
-			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, rolloverPeriod);
-		}
+		startRolloverTimer(zone, rolloverStartTimeMs, rolloverPeriodMs);
 
 		this.fileCompressor = fileCompressor;
-	}
-
-	private Date getMidnightTime(TimeZone zone) {
-
-		Calendar now = Calendar.getInstance();
-		now.setTimeZone(zone);
-
-		GregorianCalendar midnight = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
-				now.get(Calendar.DAY_OF_MONTH), 23, 0);
-		midnight.setTimeZone(zone);
-		midnight.add(Calendar.HOUR, 1);
-
-		return midnight.getTime();
 	}
 
 	public String getFilename() {
@@ -160,7 +137,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		return "" + primaryFile;
 	}
 
-	private synchronized void setFile() throws IOException {
+	private synchronized void rollFile() throws IOException {
 
 		File nextFile = new File(fileDir, getNextFileName());
 
@@ -184,7 +161,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 
 		if (previousOut != null) {
 			previousOut.close();
-			renameAndCompress(previousPrimaryFile);
+			prefixAndCompress(previousPrimaryFile);
 		}
 	}
 
@@ -221,7 +198,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		synchronized (RolloverFileOutputStream.class) {
 			try {
 				super.close();
-				renameAndCompress(primaryFile);
+				prefixAndCompress(primaryFile);
 			} finally {
 				out = null;
 				primaryFile = null;
@@ -230,18 +207,7 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 		}
 	}
 
-	private class RollTask extends TimerTask {
-		@Override
-		public void run() {
-			try {
-				RolloverFileOutputStream.this.setFile();
-			} catch (IOException e) {
-				logger.error("Roll task failed:", e);
-			}
-		}
-	}
-
-	private void renameAndCompress(File file) {
+	private void prefixAndCompress(File file) {
 		if (file != null) {
 			File archiveFile = file;
 
@@ -265,12 +231,55 @@ public class RolloverFileOutputStream extends FilterOutputStream {
 				// Start file roll over
 				synchronized (RolloverFileOutputStream.class) {
 					try {
-						setFile();
+						rollFile();
 						writtenBytesCounter.set(0);
 					} catch (IOException e) {
 						logger.error("roll over failed:", e);
 					}
 				}
+			}
+		}
+	}
+	
+	private void startRolloverTimer(TimeZone zone, long rolloverStartTimeMs, long rolloverPeriodMs) {
+
+		synchronized (RolloverFileOutputStream.class) {
+
+			if (rolloverTimer == null) {
+				rolloverTimer = new Timer(RolloverFileOutputStream.class.getName(), true);
+			}
+
+			rollTask = new RollTask();
+
+			Date startTime = (rolloverStartTimeMs > 0) ? new Date(rolloverStartTimeMs) : getMidnightTime(zone);
+
+			long rolloverPeriod = (rolloverPeriodMs <= 0) ? HOURS_24_IN_MS : rolloverPeriodMs;
+
+			rolloverTimer.scheduleAtFixedRate(rollTask, startTime, rolloverPeriod);
+		}
+
+	}
+
+	private Date getMidnightTime(TimeZone zone) {
+
+		Calendar now = Calendar.getInstance();
+		now.setTimeZone(zone);
+
+		GregorianCalendar midnight = new GregorianCalendar(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
+				now.get(Calendar.DAY_OF_MONTH), 23, 0);
+		midnight.setTimeZone(zone);
+		midnight.add(Calendar.HOUR, 1);
+
+		return midnight.getTime();
+	}
+
+	private class RollTask extends TimerTask {
+		@Override
+		public void run() {
+			try {
+				RolloverFileOutputStream.this.rollFile();
+			} catch (IOException e) {
+				logger.error("Roll task failed:", e);
 			}
 		}
 	}
